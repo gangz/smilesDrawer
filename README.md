@@ -192,6 +192,7 @@ The following options are available:
 | Small Font Size (in pt for numbers)                             | fontSizeSmall               | number                              | 4             |
 | Padding                                                         | padding                     | number                              | 20.0          |
 | Use experimental features                                       | experimental                | boolean                             | false         |
+| Carbon label display                                            | showCarbons                 | string ['none', 'default', 'terminal', 'acyclic', 'all'] | 'default'     |
 | Show Terminal Carbons (CH3)                                     | terminalCarbons             | boolean                             | false         |
 | Polymer repeat-unit overlay for wildcard endpoints              | polymerDisplayMode          | string ['none', 'bracket-n']        | 'none'        |
 | Show explicit hydrogens                                         | explicitHydrogens           | boolean                             | false         |
@@ -217,6 +218,7 @@ The default options are defined as follows:
     debug: false,
     terminalCarbons: false,
     polymerDisplayMode: 'none',
+    showCarbons: 'default',
     explicitHydrogens: false,
     overlapSensitivity: 0.42,
     overlapResolutionIterations: 1,
@@ -261,6 +263,8 @@ The default options are defined as follows:
 ```
 
 `polymerDisplayMode: 'bracket-n'` enables a display-only `[ ]n` overlay for strict repeat-endpoint patterns (exactly two wildcard `*` atoms, each terminal, SMILES starting with `*` on the parse-tree root, and ending the main chain with `*`). Other wildcard usages keep the default rendering. Example renders: [`readme/polymer/`](./readme/polymer/) (regenerate with `npm run figures:pr`).
+
+`showCarbons` controls when explicit carbon labels are drawn: **`none`** never labels plain carbons; **`default`** is the usual skeletal notation; **`terminal`** matches the former `terminalCarbons: true` behavior (explicit labels on terminal carbons such as methyl groups); **`acyclic`** labels every carbon that is not part of a ring; **`all`** labels every carbon including ring atoms. If `showCarbons` is `'default'` and **`terminalCarbons`** is `true`, the effective mode is **`terminal`** (legacy compatibility until v3.0).
 
 ### Usage
 

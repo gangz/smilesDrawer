@@ -7428,6 +7428,7 @@
         debug: false,
         terminalCarbons: false,
         polymerDisplayMode: "none",
+        showCarbons: "default",
         explicitHydrogens: true,
         overlapSensitivity: 0.42,
         overlapResolutionIterations: 1,
@@ -7645,12 +7646,33 @@
         }
       };
       this.opts = Options.extend(true, this.defaultOptions, options);
+      const allowedShowCarbons = ["none", "default", "terminal", "acyclic", "all"];
+      if (allowedShowCarbons.indexOf(this.opts.showCarbons) === -1) {
+        this.opts.showCarbons = "default";
+      }
       this.opts.halfBondSpacing = this.opts.bondSpacing / 2;
       this.opts.bondLengthSq = this.opts.bondLength * this.opts.bondLength;
       this.opts.halfFontSizeLarge = this.opts.fontSizeLarge / 2;
       this.opts.quarterFontSizeLarge = this.opts.fontSizeLarge / 4;
       this.opts.fifthFontSizeSmall = this.opts.fontSizeSmall / 5;
       this.theme = this.opts.themes.dark;
+    }
+    /**
+     * Resolves carbon label display mode, including legacy `terminalCarbons` when `showCarbons` is `'default'`.
+     *
+     * @param {Object} opts Merged drawer options.
+     * @returns {'none'|'default'|'terminal'|'acyclic'|'all'}
+     */
+    static getEffectiveShowCarbonsMode(opts) {
+      const allowed = ["none", "default", "terminal", "acyclic", "all"];
+      let mode = opts.showCarbons;
+      if (mode === void 0 || mode === null || allowed.indexOf(mode) === -1) {
+        mode = "default";
+      }
+      if (mode === "default" && opts.terminalCarbons) {
+        return "terminal";
+      }
+      return mode;
     }
     /**
      * Draws the parsed smiles data to a canvas element.
@@ -8759,8 +8781,22 @@
         let element = atom.element;
         let hydrogens = Atom.maxBonds[element] - bondCount;
         let dir = vertex.getTextDirection(this.graph.vertices);
-        let isTerminal = this.opts.terminalCarbons || element !== "C" || atom.hasAttachedPseudoElements ? vertex.isTerminal() : false;
+        const showCarbonsMode = _DrawerBase.getEffectiveShowCarbonsMode(this.opts);
+        let isTerminal = showCarbonsMode === "terminal" || element !== "C" || atom.hasAttachedPseudoElements ? vertex.isTerminal() : false;
         let isCarbon = atom.element === "C";
+        if (element === "C") {
+          const isRingCarbon = atom.rings && atom.rings.length > 0;
+          if (showCarbonsMode === "none") {
+            isCarbon = true;
+            isTerminal = false;
+          } else if (showCarbonsMode === "all") {
+            isCarbon = false;
+            isTerminal = true;
+          } else if (showCarbonsMode === "acyclic" && !isRingCarbon) {
+            isCarbon = false;
+            isTerminal = true;
+          }
+        }
         if (atom.element === "N" && atom.isPartOfAromaticRing) {
           hydrogens = 0;
         }
@@ -11609,8 +11645,22 @@
         let element = atom.element;
         let hydrogens = Atom.maxBonds[element] - bondCount;
         let dir = vertex.getTextDirection(graph.vertices, atom.hasAttachedPseudoElements);
-        let isTerminal = opts.terminalCarbons || element !== "C" || atom.hasAttachedPseudoElements ? vertex.isTerminal() : false;
+        const showCarbonsMode = DrawerBase.getEffectiveShowCarbonsMode(opts);
+        let isTerminal = showCarbonsMode === "terminal" || element !== "C" || atom.hasAttachedPseudoElements ? vertex.isTerminal() : false;
         let isCarbon = atom.element === "C";
+        if (element === "C") {
+          const isRingCarbon = atom.rings && atom.rings.length > 0;
+          if (showCarbonsMode === "none") {
+            isCarbon = true;
+            isTerminal = false;
+          } else if (showCarbonsMode === "all") {
+            isCarbon = false;
+            isTerminal = true;
+          } else if (showCarbonsMode === "acyclic" && !isRingCarbon) {
+            isCarbon = false;
+            isTerminal = true;
+          }
+        }
         if (atom.element === "N" && atom.isPartOfAromaticRing) {
           hydrogens = 0;
         }
