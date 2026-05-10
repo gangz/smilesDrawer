@@ -812,9 +812,21 @@ export default class SvgWrapper {
         let image = new Image();
 
         image.onload = function() {
-            canvas.width = width;
-            canvas.height = height;
-            canvas.getContext('2d').drawImage(image, 0, 0, width, height);
+            // HiDPI: backing store uses device pixels; CSS size stays in logical px so the image
+            // is not upscaled by the browser on retina displays (avoids blurry lines and text).
+            const dpr = (typeof window !== 'undefined' && window.devicePixelRatio)
+                ? window.devicePixelRatio
+                : 1;
+            const bw = Math.max(1, Math.round(Number(width) * dpr));
+            const bh = Math.max(1, Math.round(Number(height) * dpr));
+            canvas.width = bw;
+            canvas.height = bh;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.drawImage(image, 0, 0, bw, bh);
+            }
         };
 
         image.src = 'data:image/svg+xml;charset-utf-8,' + encodeURIComponent(this.svg.outerHTML);
