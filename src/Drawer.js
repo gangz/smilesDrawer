@@ -57,7 +57,18 @@ export default class Drawer {
         svg.setAttributeNS(null, 'width', this.svgDrawer.opts.width + '');
         svg.setAttributeNS(null, 'height', this.svgDrawer.opts.height + '');
         this.svgDrawer.draw(data, svg, themeName, null, infoOnly, highlight_atoms);
-        this.svgDrawer.svgWrapper.toCanvas(canvas, this.svgDrawer.opts.width, this.svgDrawer.opts.height);
+
+        // Rasterize at the tight bounding box from the final viewBox. Using opts.width/height
+        // for every molecule upscaled small structures to the same bitmap size as large ones.
+        let outW = this.svgDrawer.opts.width;
+        let outH = this.svgDrawer.opts.height;
+        if (svg.viewBox && svg.viewBox.baseVal && svg.viewBox.baseVal.width > 0 && svg.viewBox.baseVal.height > 0) {
+            const vb = svg.viewBox.baseVal;
+            outW = Math.max(1, Math.ceil(vb.width));
+            outH = Math.max(1, Math.ceil(vb.height));
+        }
+
+        this.svgDrawer.svgWrapper.toCanvas(canvas, outW, outH);
     }
 
     /**
