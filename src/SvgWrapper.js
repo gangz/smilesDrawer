@@ -789,6 +789,14 @@ export default class SvgWrapper {
             maskRadius = this.opts.fontSizeLarge * 1.1;
         }
 
+        // Bonds use a mask so strokes do not cross labels. If the mask disk is large vs bond
+        // length, both ends of a short bond can fall inside the disks and the bond disappears.
+        const bondCap =
+            typeof this.opts.bondLength === 'number' && this.opts.bondLength > 0
+                ? this.opts.bondLength * 0.44
+                : maskRadius;
+        maskRadius = Math.min(maskRadius, bondCap);
+
         let mask = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         mask.setAttributeNS(null, 'cx', cx);
         mask.setAttributeNS(null, 'cy', cy);
