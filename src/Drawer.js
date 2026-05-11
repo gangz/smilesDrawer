@@ -68,6 +68,13 @@ export default class Drawer {
             outH = Math.max(1, Math.ceil(vb.height));
         }
 
+        // Root width/height were still opts' large square; decoding the data URL rasterizes that
+        // aspect, then drawImage(outW×outH) squashes non-uniformly. Match intrinsic size to output.
+        svg.setAttributeNS(null, 'width', String(outW));
+        svg.setAttributeNS(null, 'height', String(outH));
+        svg.style.width = '';
+        svg.style.height = '';
+
         this.svgDrawer.svgWrapper.toCanvas(canvas, outW, outH);
     }
 

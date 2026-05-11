@@ -420,9 +420,10 @@ export default class SvgDrawer {
                 isotope = atom.bracket.isotope;
             }
 
-            // If the molecule has less than 3 elements, always write the "C" for carbon
+            // If the molecule has less than 3 elements, always write the "C" for carbon (default readability).
+            // When showCarbons is 'none', do not override — two-atom species like C=C should stay label-free.
             // Likewise, if the carbon has a charge or an isotope, always draw it
-            if (charge || isotope || graph.vertices.length < 3) {
+            if (charge || isotope || (graph.vertices.length < 3 && showCarbonsMode !== 'none')) {
                 isCarbon = false;
             }
 

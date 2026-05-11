@@ -62,4 +62,11 @@ describe('showCarbons rendering (SVG)', () => {
         const html = renderInnerHtml('CCC', {showCarbons: 'none'});
         expect(/\u2082|\u2083/.test(html)).toBe(false);
     });
+
+    it("with mode 'none', ethene (2 heavy atoms) no longer forces explicit C like default (regression: <3-atom override)", () => {
+        const none = renderInnerHtml('C=C', {showCarbons: 'none'});
+        const def = renderInnerHtml('C=C', {showCarbons: 'default'});
+        const countTextTags = s => (s.match(/<text/g) || []).length;
+        expect(countTextTags(none)).toBeLessThan(countTextTags(def));
+    });
 });
