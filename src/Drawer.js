@@ -72,8 +72,9 @@ export default class Drawer {
         // aspect, then drawImage(outW×outH) squashes non-uniformly. Match intrinsic size to output.
         svg.setAttributeNS(null, 'width', String(outW));
         svg.setAttributeNS(null, 'height', String(outH));
-        svg.style.width = '';
-        svg.style.height = '';
+        // Keep presentation in sync: clearing style broke some engines' raster sizing vs attributes.
+        svg.style.width = `${outW}px`;
+        svg.style.height = `${outH}px`;
 
         this.svgDrawer.svgWrapper.toCanvas(canvas, outW, outH);
     }
